@@ -3,10 +3,11 @@
     "description": "Dynamic Server",
     "version": "1.0.0",
     "author": {
-        "name": "",
-        "email": ""
+        "name": "Andres Orellana",
+        "email": "Andres.Orellana@stthomas.edu"
     },
-    "contributors": [
+    "contributors": ["Ian Schulke",
+        "Semone Matiyas"
     ],
     "repository": {},
     "dependencies": {

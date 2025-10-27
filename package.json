@@ -9,7 +9,7 @@
     "contributors": ["Ian Schulke",
         "Semone Matiyas"
     ],
-    "repository": {},
+    "repository": {"https://github.com/Andres-Orellana/webdev-dynamic"},
     "dependencies": {
         "express": "^5.1.0",
         "sqlite3": "^5.1.7"

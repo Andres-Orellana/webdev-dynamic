@@ -1,18 +1,35 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as url from 'node:url';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import express from "express";
+import sqlite3 from "sqlite3";
 
-import { default as express } from 'express';
-import { default as sqlite3 } from 'sqlite3';
-
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-
-const port = 8080;
-const root = path.join(__dirname, 'public');
-const template = path.join(__dirname, 'templates');
-
+let port = 8080;
+let public_dir = "./public";
+let template_dir = "./templates";
 let app = express();
-app.use(express.static(root));
+app.use(express.static(public_dir));
+
+const db = new sqlite3.Database("summary.db");
+
+// Route: Compare
+app.get("/yields/compare", (req, res) => {
+  db.all("SELECT crop, year, avg_yield FROM yield_summary ORDER BY year, crop", (err, rows) => {
+    if (err) {
+      res.status(500).send("Database error");
+      return;
+    }
+    fs.readFile(path.join(template_dir, "compare.html"), (err, html_data) => {
+      if (err) {
+        res.status(500).send("Template error");
+        return;
+      }
+      // Replace placeholder with JSON data
+      let template = html_data.toString();
+      let filled = template.replace("$$$CHART_DATA$$$", JSON.stringify(rows));
+      res.status(200).type("html").send(filled);
+    });
+  });
+});
 
 const dbPath = path.join(__dirname, 'summary.db');
 let db = null;
@@ -108,5 +125,5 @@ app.get('/summary/:year', (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log('Now listening on port ' + port);
+  console.log(`Server running at http://localhost:${port}`);
 });

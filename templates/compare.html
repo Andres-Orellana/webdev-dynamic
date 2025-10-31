@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Sustainability Yields</title>
+    <link rel="stylesheet" href="/css/foundation.css"/> 
+    <link rel="stylesheet" href="/css/style.css"/> 
+  </head>
+  <body>
+
+    <div class="grid-container">
+      <h1 class="text-center">Crop Yield Comparison</h1>
+      <nav>
+        <ul class="menu align-center">
+          <li><a href="/">Home</a></li>
+          <li><a href="/yields/crop/maize">Maize</a></li>
+          <li><a href="/yields/crop/wheat">Wheat</a></li>
+          <li><a href="/yields/crop/rice">Rice</a></li>
+          <li><a href="/yields/compare">Compare</a></li>
+        </ul>
+      </nav>
+
+      <div class="grid-x grid-padding-x">
+        <div class="cell">
+          <canvas id="compareChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      let chartData = $$$CHART_DATA$$$;
+
+      let years = [...new Set(chartData.map(r => r.year))];
+      let crops = ["maize", "wheat", "rice"];
+
+      const datasets = crops.map(crop => ({
+        label: crop,
+        data: years.map(y => {
+          let row = chartData.find(r => r.crop === crop && r.year === y);
+          return row ? row.avg_yield : null;
+        }),
+        borderWidth: 2,
+        fill: false
+      }));
+
+      new Chart(document.getElementById("compareChart"), {
+        type: "line",
+        data: { labels: years, datasets: datasets },
+        options: {
+          responsive: true,
+          scales: {
+            y: { title: { display: true, text: "Average Yield" } },
+            x: { title: { display: true, text: "Year" } }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

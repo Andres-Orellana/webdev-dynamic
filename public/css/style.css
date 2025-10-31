@@ -1,0 +1,26 @@
+body {
+  background: #f7f8fa;
+}
+
+h1 {
+  color: #0a3d62;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+nav ul.menu {
+  justify-content: center;
+  background-color: #0a3d62;
+}
+
+nav ul.menu li a {
+  color: white;
+  font-weight: 600;
+}
+
+canvas {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}

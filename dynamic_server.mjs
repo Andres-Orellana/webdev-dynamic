@@ -9,7 +9,7 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const port = 8080;
 const root = path.join(__dirname, 'public');
 const template = path.join(__dirname, 'templates');
-
+let template_dir = './templates';
 let app = express();
 app.use(express.static(root));
 
@@ -26,8 +26,9 @@ function openDbIfNeeded() {
 }
 
 
+
 /* -------- By Year -------- */
-app.get('/summary/:year', (req, res) => {
+app.get('/yields/year/:year', (req, res) =>  {
   openDbIfNeeded();
   if (!db) return res.status(500).send('Database not available');
 
@@ -76,8 +77,8 @@ app.get('/summary/:year', (req, res) => {
 
         const navLinks = `
           <nav style="margin-top:1rem;text-align:center;">
-            <a href="/summary/${prevYear}"> Previous (${prevYear})</a> |
-            <a href="/summary/${nextYear}">Next (${nextYear}) </a>
+            <a href="/yields/year/${prevYear}"> Previous (${prevYear})</a> |
+            <a href="/yields/year/${nextYear}">Next (${nextYear}) </a>
           </nav>
         `;
 
@@ -122,4 +123,16 @@ app.get("/yields/compare", (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
+});
+
+
+/* -------- home -------- */
+app.get("/", (req, res) => {
+  fs.readFile(path.join(template_dir, "index.html"), (err, html_data) => {
+    if (err) {
+      res.status(500).send("Template error");
+      return;
+    }
+    res.status(200).type("html").send(html_data.toString());
+  });
 });

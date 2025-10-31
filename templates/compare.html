@@ -1,61 +1,88 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Sustainability Yields</title>
-    <link rel="stylesheet" href="/css/foundation.css"/> 
-    <link rel="stylesheet" href="/css/style.css"/> 
-  </head>
-  <body>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Crop Yield Comparison</title>
 
-    <div class="grid-container">
-      <h1 class="text-center">Crop Yield Comparison</h1>
-      <nav>
-        <ul class="menu align-center">
-          <li><a href="/">Home</a></li>
-          <li><a href="/yields/crop/maize">Maize</a></li>
-          <li><a href="/yields/crop/wheat">Wheat</a></li>
-          <li><a href="/yields/crop/rice">Rice</a></li>
-          <li><a href="/yields/compare">Compare</a></li>
-        </ul>
-      </nav>
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="/css/nav.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  
+</head>
 
-      <div class="grid-x grid-padding-x">
-        <div class="cell">
-          <canvas id="compareChart"></canvas>
-        </div>
-      </div>
-    </div>
+<body>
+  <header>
+    <h1>Global Crop Yield Sustainability</h1>
+    <p>Visualizing food production efficiency over time (1981–2016)</p>
+  </header>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      let chartData = $$$CHART_DATA$$$;
+  <nav>
+    <a href="/">Home</a>
+    <a href="/yields/crop/maize">By Crop</a>
+    <a href="/yields/year/2000">By Year</a>
+    <a href="/yields/compare">Compare</a>
+  </nav>
 
-      let years = [...new Set(chartData.map(r => r.year))];
-      let crops = ["maize", "wheat", "rice"];
+  <main>
+    <h2>Crop Yield Comparison (1981–2016)</h2>
+    <canvas id="compareChart"></canvas>
+  </main>
 
-      const datasets = crops.map(crop => ({
-        label: crop,
-        data: years.map(y => {
-          let row = chartData.find(r => r.crop === crop && r.year === y);
-          return row ? row.avg_yield : null;
-        }),
-        borderWidth: 2,
-        fill: false
-      }));
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let chartData = $$$CHART_DATA$$$;
 
-      new Chart(document.getElementById("compareChart"), {
-        type: "line",
-        data: { labels: years, datasets: datasets },
-        options: {
-          responsive: true,
-          scales: {
-            y: { title: { display: true, text: "Average Yield" } },
-            x: { title: { display: true, text: "Year" } }
+    const years = [...new Set(chartData.map(r => r.year))];
+    const crops = ["maize", "wheat", "rice"];
+
+    const datasets = crops.map(crop => ({
+      label: crop.charAt(0).toUpperCase() + crop.slice(1),
+      data: years.map(y => {
+        const row = chartData.find(r => r.crop === crop && r.year === y);
+        return row ? row.avg_yield : null;
+      }),
+      borderWidth: 2,
+      fill: false,
+      tension: 0.25, // smoother curves
+      pointRadius: 3
+    }));
+
+    new Chart(document.getElementById("compareChart"), {
+      type: "line",
+      data: { labels: years, datasets: datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "top" },
+          title: {
+            display: true,
+            text: "Crop Yields Over Time (tons per hectare)",
+            font: { size: 18 }
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: "Year",
+              font: { size: 14 }
+            },
+            ticks: { maxRotation: 45, minRotation: 45 }
+          },
+          y: {
+            title: {
+              display: true,
+              text: "Average Yield (tons per hectare)",
+              font: { size: 14 }
+            },
+            beginAtZero: true
           }
         }
-      });
-    </script>
-  </body>
+      }
+    });
+  </script>
+</body>
 </html>

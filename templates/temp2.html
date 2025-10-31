@@ -1,118 +1,60 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{{TITLE}}</title>
 
-  <style>
-    :root {
-      --border-color: #e1e4e8;
-      --text-color: #111;
-      --link-color: #0366d6;
-      --muted-color: #666;
-    }
+  <!-- Foundation first, then your main stylesheet -->
+   <link rel="stylesheet" href="/css/nav.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
 
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      color: var(--text-color);
-      line-height: 1.6;
-    }
-
-    header {
-      margin-bottom: 2rem;
-    }
-
-    nav {
-      margin-bottom: 1rem;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1.5rem 0;
-      font-size: 0.95rem;
-    }
-
-    th, td {
-      border: 1px solid var(--border-color);
-      padding: 0.5rem 0.75rem;
-      text-align: center;
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 1rem 0;
-    }
-    th {
-      background: #f6f8fa;
-      font-weight: 600;
-    }
-
-    figure {
-      margin: 2rem 0;
-    }
-
-    canvas {
-      width: 100%;
-      height: 400px;
-      display: block;
-    }
-
-    figcaption {
-      text-align: center;
-      color: var(--muted-color);
-      margin-top: 0.5rem;
-      font-style: italic;
-    }
-  </style>
 </head>
 
 <body>
+  <header>
+    <h1>Global Crop Yield Sustainability</h1>
+    <p>Visualizing food production efficiency over time (1981–2016)</p>
+  </header>
+
   <nav>
-    <a href="/">Home</a> |
-    <a href="/summary">Summary</a>
+    <a href="/">Home</a>
+    <a href="/yields/crop/maize">By Crop</a>
+    <a href="/yields/year/2000">By Year</a>
+    <a href="/yields/compare">Compare</a>
   </nav>
+
   <main>
-    <header>
-      <h1>{{TITLE}}</h1>
-      <p>{{DESCRIPTION}}</p>
-    </header>
+    <h2>{{TITLE}}</h2>
+    <p>{{DESCRIPTION}}</p>
 
-<img class="main" src="{{IMG_SRC}}" alt="{{IMG_ALT}}" />
+    <img class="main" src="{{IMG_SRC}}" alt="{{IMG_ALT}}" />
 
+    <section aria-labelledby="data-heading">
+      <h3 id="data-heading">Data</h3>
+      <table>
+        <thead>
+          {{TABLE_HEADER}}
+        </thead>
+        <tbody>
+          {{TABLE_ROWS}}
+        </tbody>
+      </table>
+    </section>
 
-<section aria-labelledby="data-heading">
-  <h2 id="data-heading">Data</h2>
-  <table>
-    <thead>
-{{TABLE_HEADER}}
-    </thead>
-    <tbody>
-{{TABLE_ROWS}}
-    </tbody>
-  </table>
-</section>
+    {{NAV_LINKS}}
 
-{{NAV_LINKS}}
-
-<section aria-labelledby="chart-caption">
-  <h2 class="visually-hidden">Chart</h2>
-  <figure>
-    <canvas id="chart" role="img" aria-label="Trend by year"></canvas>
-    <figcaption id="chart-caption">{{CHART_CAPTION}}</figcaption>
-  </figure>
-</section>
-
+    <section aria-labelledby="chart-caption">
+      <h3 class="visually-hidden">Chart</h3>
+      <figure>
+        <canvas id="chart" role="img" aria-label="Trend by year"></canvas>
+        <figcaption id="chart-caption">{{CHART_CAPTION}}</figcaption>
+      </figure>
+    </section>
   </main>
 
+  <!-- Chart.js -->
   <script src="/js/chart.js"></script>
-
   <script>
     let chartData;
     try {
@@ -130,10 +72,31 @@
           data: chartData,
           options: {
             responsive: true,
-            plugins: { legend: { position: 'top' } },
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              title: {
+                display: true,
+                text: 'Average Yield by Crop ({{TITLE}})',
+                font: { size: 18 }
+              }
+            },
             scales: {
-              x: { title: { display: true, text: 'Year' } },
-              y: { title: { display: true, text: 'Yield (tons/ha)' } }
+              x: {
+                title: {
+                  display: true,
+                  text: 'Crop',
+                  font: { size: 14 }
+                }
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Average Yield (tons per hectare)',
+                  font: { size: 14 }
+                },
+                beginAtZero: true
+              }
             }
           }
         });

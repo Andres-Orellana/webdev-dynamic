@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Sustainability Crop Yield Dashboard</title>
+  <link rel="stylesheet" href="/css/nav.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+
+
+</head>
+
+<body>
+  <header>
+    <h1>Global Crop Yield Sustainability</h1>
+    <p>Visualizing food production efficiency over time (1981–2016)</p>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/yields/crop/maize">By Crop</a>
+    <a href="/yields/year/2000">By Year</a>
+    <a href="/yields/compare">Compare</a>
+  </nav>
+
+  <main>
+    <h2>About This Server</h2>
+    <p>
+      This web server dynamically renders real crop yield data from the
+      <strong>Global Gridded Crop Yield (GHDY) Dataset</strong> using Node.js
+      and SQLite. Each page you visit is built on the fly, with data queried
+      directly from our local database and visualized using Chart.js.
+    </p>
+
+    <h2>Connection to Sustainability</h2>
+    <p>
+      Crop yield measures how much food we can produce from a given amount of land.
+      Tracking changes in yields helps scientists and policymakers understand how
+      efficiently we’re using global farmland. Increases in yield over time often
+      reflect improvements in technology, crop genetics, and resource management —
+      all key aspects of sustainable agriculture.
+    </p>
+
+    <p>
+      However, sustainability isn’t only about higher yields; it’s about producing
+      more with less impact. This dashboard invites you to explore that balance:
+      are rising yields a sign of sustainable progress or of environmental stress?
+    </p>
+
+    <p><a href="/yields/compare">Start Exploring &rarr;</a></p>
+  </main>
+
+</body>
+</html>

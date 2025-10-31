@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{TITLE}}</title>
+
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="/css/nav.css"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+
+<body>
+  <header>
+    <h1>Global Crop Yield Sustainability</h1>
+    <p>Visualizing food production efficiency over time (1981–2016)</p>
+  </header>
+
+  <nav>
+    <a href="/">Home</a>
+    <a href="/yields/crop/maize">By Crop</a>
+    <a href="/yields/year/2000">By Year</a>
+    <a href="/yields/compare">Compare</a>
+  </nav>
+
+  <main>
+    <h2>{{TITLE}}</h2>
+    <p>{{DESCRIPTION}}</p>
+
+    <img class="main" src="{{IMG_SRC}}" alt="{{IMG_ALT}}" />
+
+    <section aria-labelledby="data-heading">
+      <h3 id="data-heading">Data</h3>
+      <table>
+        <thead>
+          {{TABLE_HEADER}}
+        </thead>
+        <tbody>
+          {{TABLE_ROWS}}
+        </tbody>
+      </table>
+    </section>
+
+    {{NAV_LINKS}}
+
+    <section aria-labelledby="chart-caption">
+      <h3 class="visually-hidden">Chart</h3>
+      <figure>
+        <canvas id="chart" role="img" aria-label="Yield trend"></canvas>
+        <figcaption id="chart-caption">{{CHART_CAPTION}}</figcaption>
+      </figure>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Sustainability Data Server | Built with Node.js + SQLite + Chart.js</p>
+  </footer>
+
+  <!-- Use your local Chart.js if you’ve placed it in /public/js/chart.js -->
+  <script src="/js/chart.js"></script>
+  <script>
+    let chartData;
+    try {
+      chartData = JSON.parse('{{CHART_JSON}}');
+    } catch (err) {
+      console.warn('Invalid chart JSON:', err);
+      chartData = null;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const ctx = document.getElementById('chart').getContext('2d');
+      if (chartData && chartData.labels && chartData.datasets) {
+        new Chart(ctx, {
+          type: '{{CHART_TYPE}}' || 'line',
+          data: chartData,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'top' },
+              title: {
+                display: true,
+                text: '{{TITLE}}',
+                font: { size: 18 }
+              }
+            },
+            scales: {
+              x: {
+                title: { display: true, text: 'Year', font: { size: 14 } }
+              },
+              y: {
+                title: { display: true, text: 'Average Yield (tons per hectare)', font: { size: 14 } },
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

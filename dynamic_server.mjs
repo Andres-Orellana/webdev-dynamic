@@ -125,6 +125,105 @@ app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
 
+// by crop
+app.get('/yields/crop/:crop', (req, res) => {
+  openDbIfNeeded();
+  if (!db) return res.status(500).send('Database not available');
+
+  const crop = String(req.params.crop || '').toLowerCase();
+  const allowed = ['maize', 'wheat', 'rice'];
+  if (!allowed.includes(crop)) {
+    return res.status(404).send(`No data for crop "${crop}"`);
+  }
+
+  db.all(
+    'SELECT year, avg_yield FROM yield_summary WHERE crop = ? ORDER BY year',
+    [crop],
+    (err, rows) => {
+      if (err) return res.status(500).send('Database error: ' + err.message);
+      if (!rows || rows.length === 0) return res.status(404).send(`No data for crop "${crop}"`);
+
+      const years = rows.map(r => r.year);
+      const yields = rows.map(r => r.avg_yield);
+
+      // Build table rows
+      const tableRows = rows.map(r =>
+        `<tr><td>${r.year}</td><td>${(r.avg_yield ?? 0).toFixed(3)}</td></tr>`
+      ).join('');
+
+      // Prev/next crop links 
+      const idx = allowed.indexOf(crop);
+      const prevCrop = allowed[(idx - 1 + allowed.length) % allowed.length];
+      const nextCrop = allowed[(idx + 1) % allowed.length];
+
+      const navLinks = `
+        <nav style="text-align:center; margin: 1rem 0;">
+          <a href="/yields/crop/${prevCrop}">Previous (${prevCrop})</a> |
+          <a href="/yields/crop/${nextCrop}">Next (${nextCrop})</a>
+        </nav>
+      `;
+
+      
+      const chartData = {
+        labels: years,
+        datasets: [{
+          label: crop.charAt(0).toUpperCase() + crop.slice(1),
+          data: yields,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.25,
+          pointRadius: 3
+        }]
+      };
+
+      
+      const title = `Yield Trend: ${crop.charAt(0).toUpperCase() + crop.slice(1)} (1981–2016)`;
+      const desc  = `Average ${crop} yields over time, in tons per hectare.`;
+// Pick image per crop
+    let imgSrc;
+    let imgAlt;
+
+    switch (crop) {
+    case 'maize':
+        imgSrc = '/images/maize.jpg';
+        imgAlt = 'Maize fields under clear sky';
+        break;
+    case 'wheat':
+        imgSrc = '/images/rice.jpg';
+        imgAlt = 'Golden wheat ready for harvest';
+        break;
+    case 'rice':
+        imgSrc = '/images/wheat.jpg';
+        imgAlt = 'Rice paddies in a sustainable farm';
+        break;
+    default:
+        imgSrc = '/images/crops.jpg';
+        imgAlt = 'Various crops';
+    }
+
+      // Read template 
+      fs.readFile(path.join(template, 'crop.html'), 'utf8', (tErr, tpl) => {
+        if (tErr) return res.status(500).send('Template error: ' + tErr.message);
+
+        const out = tpl
+          .replace(/{{TITLE}}/g, title)
+          .replace(/{{DESCRIPTION}}/g, desc)
+          .replace(/{{IMG_SRC}}/g, imgSrc)
+          .replace(/{{IMG_ALT}}/g, imgAlt)
+          .replace(/{{TABLE_HEADER}}/g, '<tr><th>Year</th><th>Average Yield (t/ha)</th></tr>')
+          .replace(/{{TABLE_ROWS}}/g, tableRows)
+          .replace(/{{CHART_TYPE}}/g, 'line')
+          .replace(/{{CHART_CAPTION}}/g, `Average ${crop} yield (t/ha) by year`)
+          .replace(/{{NAV_LINKS}}/g, navLinks)
+          .replace(/{{CHART_JSON}}/g, JSON.stringify(chartData));
+
+        res.status(200).type('html').send(out);
+      });
+    }
+  );
+});
+
+
 
 /* -------- home -------- */
 app.get("/", (req, res) => {

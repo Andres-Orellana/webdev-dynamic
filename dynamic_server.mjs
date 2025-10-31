@@ -1,35 +1,17 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
-import express from "express";
-import sqlite3 from "sqlite3";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as url from 'node:url';
+import { default as express } from 'express';
+import { default as sqlite3 } from 'sqlite3';
 
-let port = 8080;
-let public_dir = "./public";
-let template_dir = "./templates";
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+const port = 8080;
+const root = path.join(__dirname, 'public');
+const template = path.join(__dirname, 'templates');
+
 let app = express();
-app.use(express.static(public_dir));
-
-const db = new sqlite3.Database("summary.db");
-
-// Route: Compare
-app.get("/yields/compare", (req, res) => {
-  db.all("SELECT crop, year, avg_yield FROM yield_summary ORDER BY year, crop", (err, rows) => {
-    if (err) {
-      res.status(500).send("Database error");
-      return;
-    }
-    fs.readFile(path.join(template_dir, "compare.html"), (err, html_data) => {
-      if (err) {
-        res.status(500).send("Template error");
-        return;
-      }
-      // Replace placeholder with JSON data
-      let template = html_data.toString();
-      let filled = template.replace("$$$CHART_DATA$$$", JSON.stringify(rows));
-      res.status(200).type("html").send(filled);
-    });
-  });
-});
+app.use(express.static(root));
 
 const dbPath = path.join(__dirname, 'summary.db');
 let db = null;
@@ -43,6 +25,8 @@ function openDbIfNeeded() {
   }
 }
 
+
+/* -------- By Year -------- */
 app.get('/summary/:year', (req, res) => {
   openDbIfNeeded();
   if (!db) return res.status(500).send('Database not available');
@@ -50,8 +34,8 @@ app.get('/summary/:year', (req, res) => {
   const year = parseInt(req.params.year);
   if (isNaN(year)) return res.status(400).send('Invalid year parameter');
 
-    const imageSrc = '/images/crops.jpg';
-    const imageAlt = 'Crops comparison';
+  const imageSrc = '/images/crops.jpg';
+  const imageAlt = 'Crops comparison';
 
   db.all(
     'SELECT crop, avg_yield FROM yield_summary WHERE year = ? ORDER BY crop',
@@ -63,28 +47,23 @@ app.get('/summary/:year', (req, res) => {
 
       const crops = rows.map(r => r.crop);
       const yields = rows.map(r => r.avg_yield);
-
-      const tableRows = rows
-        .map(r => `<tr><td>${r.crop}</td><td>${r.avg_yield.toFixed(3)}</td></tr>`)
-        .join('');
+      const tableRows = rows.map(
+        r => `<tr><td>${r.crop}</td><td>${r.avg_yield.toFixed(3)}</td></tr>`
+      ).join('');
 
       const chartData = {
         labels: crops,
-        datasets: [
-          {
-            label: `Average Yield (${year})`,
-            data: yields,
-            backgroundColor: [
-              'rgba(75, 192, 192, 0.6)',
-              'rgba(255, 159, 64, 0.6)',
-              'rgba(153, 102, 255, 0.6)',
-              'rgba(255, 205, 86, 0.6)',
-              'rgba(54, 162, 235, 0.6)'
-            ],
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-          }
-        ]
+        datasets: [{
+          label: `Average Yield (${year})`,
+          data: yields,
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+            'rgba(153, 102, 255, 0.6)'
+          ],
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        }]
       };
 
       db.all('SELECT DISTINCT year FROM yield_summary ORDER BY year', [], (err2, allYears) => {
@@ -122,6 +101,23 @@ app.get('/summary/:year', (req, res) => {
       });
     }
   );
+});
+
+/* -------- Compare -------- */
+app.get("/yields/compare", (req, res) => {
+  openDbIfNeeded();
+  if (!db) return res.status(500).send("Database not available");
+
+  db.all("SELECT crop, year, avg_yield FROM yield_summary ORDER BY year, crop", (err, rows) => {
+    if (err) return res.status(500).send("Database error");
+
+    fs.readFile(path.join(template, "compare.html"), (err, html_data) => {
+      if (err) return res.status(500).send("Template error");
+
+      let filled = html_data.toString().replace("$$$CHART_DATA$$$", JSON.stringify(rows));
+      res.status(200).type("html").send(filled);
+    });
+  });
 });
 
 app.listen(port, () => {

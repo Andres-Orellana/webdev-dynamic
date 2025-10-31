@@ -43,6 +43,12 @@
       text-align: center;
     }
 
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 1rem 0;
+    }
     th {
       background: #f6f8fa;
       font-weight: 600;
@@ -72,12 +78,14 @@
     <a href="/">Home</a> |
     <a href="/summary">Summary</a>
   </nav>
-
   <main>
     <header>
       <h1>{{TITLE}}</h1>
       <p>{{DESCRIPTION}}</p>
     </header>
+
+<img class="main" src="{{IMG_SRC}}" alt="{{IMG_ALT}}" />
+
 
 <section aria-labelledby="data-heading">
   <h2 id="data-heading">Data</h2>

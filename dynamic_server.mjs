@@ -33,6 +33,9 @@ app.get('/summary/:year', (req, res) => {
   const year = parseInt(req.params.year);
   if (isNaN(year)) return res.status(400).send('Invalid year parameter');
 
+    const imageSrc = '/images/crops.jpg';
+    const imageAlt = 'Crops comparison';
+
   db.all(
     'SELECT crop, avg_yield FROM yield_summary WHERE year = ? ORDER BY crop',
     [year],
@@ -88,6 +91,8 @@ app.get('/summary/:year', (req, res) => {
           const out = tpl
             .replace(/{{TITLE}}/g, `Crop Yields for ${year}`)
             .replace(/{{DESCRIPTION}}/g, `Average crop yields for the year ${year}.`)
+            .replace(/{{IMG_SRC}}/g, imageSrc)
+            .replace(/{{IMG_ALT}}/g, imageAlt)
             .replace(/{{TABLE_HEADER}}/g, '<tr><th>Crop</th><th>Average Yield</th></tr>')
             .replace(/{{TABLE_ROWS}}/g, tableRows)
             .replace(/{{CHART_TYPE}}/g, 'bar')
